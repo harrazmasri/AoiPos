@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} - Login{% endblock %}
+{% block content %}
+
+<div class="w-2/5 h-full bg-white/80 backdrop-blur-xl flex flex-col px-18 items-center">
+
+    <div class="w-fit h-[40vh] flex flex-col justify-center items-center">
+        <img src="{% static 'images/web/logo.png' %}" alt="">
+        <img src="{% static 'images/web/logo-text.svg' %}" alt="">
+    </div>
+
+    {% block authcontent %}{% endblock %}
+
+</div>
+
+
+{% endblock %}

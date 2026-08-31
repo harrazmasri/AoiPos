@@ -1,0 +1,35 @@
+<div class="w-[35vw] h-full px-[40px] py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col">
+    <h2 class="text-[20px] text-[#4b4b4b] font-semibold">Chosen Items</h2>
+
+    <div class="grow w-full flex flex-col gap-2">
+        {% for i in "1234" %}
+        <div class="w-full h-[65px] bg-white rounded-[30px] flex justify-between items-center">
+            <div class="w-fit flex gap-2 items-center h-full">
+                <div class="bg-gray-300 rounded-[7px] h-full aspect-square"></div>
+                <p class="text-[16px] font-semibold">Product Name</p>
+            </div>
+            <div class="flex gap-[10px]">
+                <div class="w-fit flex gap-2 items-center">
+                    <div class="w-[20px] h-[20px] rounded border border-gray-300 flex items-center justify-center hover:bg-gray-200">
+                        <i data-feather="chevron-left" class="text-gray-600 w-[12px]"></i>
+                    </div>
+                    <p class="text-[16px] w-[25px] text-center font-semibold">3</p>
+                    <div class="w-[20px] h-[20px] rounded border border-gray-300 flex items-center justify-center hover:bg-gray-200">
+                        <i data-feather="chevron-right" class="text-gray-600 w-[12px]"></i>
+                    </div>
+                </div>
+                <p class="text-[16px] font-semibold">RM 24.75</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h1 class="w-full text-right text-[32px] font-bold text-[#4b4b4b]">RM 321.50</h1>
+
+    <button
+        class="w-full h-[46px] flex justify-center items-center bg-linear-to-r from-[#84D6FF] to-[#5188FF] font-white text-white rounded-full hover:brightness-90 cursor-pointer"
+    >
+        <i data-feather="cart"></i>
+        Checkout
+    </button>
+</div>

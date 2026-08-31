@@ -1,0 +1,21 @@
+{% load static %}
+<div class="w-full h-fit py-[10px] pl-[14px] pr-[51px] bg-white rounded-[30px] flex items-center justify-between">
+    <div class="w-fit h-fit flex gap-3 flex items-center">
+        <img src="{% static 'images/web/logo.png' %}" class="h-[85px]" alt="">
+        <img src="{% static 'images/web/logo-text.svg' %}" class="h-[64px]" alt="">
+    </div>
+
+    <div class="w-fit flex gap-5 items-center">
+        <a href="{% url 'pos' %}" class="text-[1rem] font-semibold text-[#4b4b4b] hover:text-[#205B8C]">cashier</a>
+        <a href="{% url 'catalogue' %}" class="text-[1rem] font-semibold text-[#4b4b4b] hover:text-[#205B8C]">catalogue</a>
+        <a href="{% url 'summary' %}" class="text-[1rem] font-semibold text-[#4b4b4b] hover:text-[#205B8C]">summary</a>
+    </div>
+
+    <div class="w-fit flex gap-5 items-center">
+        <p class="capitalize font-semibold">{{ request.session.user_username }}</p>
+        <a href="{% url 'logout' %}" class="text-[1rem] font-semibold text-[#4b4b4b] hover:text-[#205B8C] flex gap-2 items-center">
+            <i class="w-[18px]" data-feather="log-out"></i>
+            log out
+        </a>
+    </div>
+</div>

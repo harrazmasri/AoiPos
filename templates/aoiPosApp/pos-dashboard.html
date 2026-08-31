@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} - Login{% endblock %}
+{% block content %}
+
+<div class="w-full h-screen bg-white/80 backdrop-blur-xl flex p-[44px] gap-[30px]">
+
+    <div class="grow flex flex-col gap-[44px] ">
+        {% include './components/navbar.html' %}
+        <div class="grow overflow-y-scroll">
+            {% include './components/product-list.html' %}
+        </div>
+    </div>
+
+    {% include './components/calculator.html' %}
+
+</div>
+
+
+{% endblock %}

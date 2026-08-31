@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} - Login{% endblock %}
+{% block content %}
+
+<div class="w-full h-screen bg-white/80 backdrop-blur-xl flex p-[44px] gap-[30px]">
+
+    <div class="grow flex flex-col items-center gap-[44px] ">
+        {% include './components/navbar.html' %}
+        
+        <div class="w-fit min-w-[400px] h-full max-h-[70vh] overflow-y-scroll px-[40px] py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col">
+            <div class="flex gap-3">
+                <button class="w-[30px] h-[30px] flex items-center justify-center rounded-full hover:bg-gray-200">
+                    <i data-feather="chevron-left" class="w-[24px]"></i>
+                </button>
+                <h2 class="text-[20px] text-[#4b4b4b] font-semibold">Product Details</h2>
+            </div>
+
+            <div class="w-full flex flex-col gap-3 items-center">
+                <div class="w-[250px] aspect-square rounded-[20px] bg-gray-200"></div>
+                <button class="w-[250px] h-[46px] rounded-full border border-gray-200 text-[#2D5776] flex justify-center items-center">
+                    Choose Image
+                </button>
+            </div>
+
+            <div class="w-full">
+                <label for="" class="font-semibold text-gray-600 mb-1">Name</label>
+                <input class="w-full rounded-[10px] border border-gray-300 outline-gray-300 ring-gray-500 bg-white px-5 py-3" type="text">
+            </div>
+
+            <div class="w-full">
+                <label for="" class="font-semibold text-gray-600 mb-1">Price</label>
+                <input class="w-full rounded-[10px] border border-gray-300 outline-gray-300 ring-gray-500 bg-white px-5 py-3" type="number">
+            </div>
+
+            <button
+                class="w-full min-h-[46px] h-fit flex justify-center items-center bg-linear-to-r from-[#84D6FF] to-[#5188FF] font-white text-white rounded-full hover:brightness-90 cursor-pointer"
+            >
+                Create
+            </button>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}

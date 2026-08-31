@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} - Login{% endblock %}
+{% block content %}
+
+<div class="w-full h-screen bg-white/80 backdrop-blur-xl flex p-[44px] gap-[30px]">
+
+    <div class="grow flex flex-col items-center gap-[44px] ">
+        {% include './components/navbar.html' %}
+        
+        <div class="w-full flex gap-[30px]">
+            <div class="w-1/2 h-full max-h-[70vh] px-[40px] py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col">
+                <h2 class="text-[20px] text-[#4b4b4b] font-semibold">Performance Analytics</h2>
+                
+                <div class="w-full grid grid-cols-3 gap-5">
+                    <div class="w-full flex flex-col gap-2 items-center font-semibold ">
+                        <p class="text-[32px] text-[#4B4B4B]">42</p>
+                        <p class="text-[16px] text-[#768C9C]">sold</p>
+                    </div>
+
+                    <div class="w-full flex flex-col gap-2 items-center font-semibold ">
+                        <p class="text-[32px] text-[#4B4B4B]">1</p>
+                        <p class="text-[16px] text-[#768C9C]">fail</p>
+                    </div>
+
+                    <div class="w-full flex flex-col gap-2 items-center font-semibold ">
+                        <p class="text-[32px] text-[#4B4B4B]">56</p>
+                        <p class="text-[16px] text-[#768C9C]">total products</p>
+                    </div>
+
+                    <div class="w-full flex flex-col gap-2 items-center font-semibold ">
+                        <p class="text-[32px] text-[#4B4B4B]"><span class="text-[16px]">RM</span>250</p>
+                        <p class="text-[16px] text-[#768C9C]">today's sales</p>
+                    </div>
+
+                    <div class="w-full flex flex-col gap-2 items-center font-semibold ">
+                        <p class="text-[32px] text-[#4B4B4B]"><span class="text-[16px]">RM</span>250</p>
+                        <p class="text-[16px] text-[#768C9C]">last month</p>
+                    </div>
+
+                    <div class="w-full flex flex-col gap-2 items-center font-semibold ">
+                        <p class="text-[32px] text-[#4B4B4B]"><span class="text-[16px]">RM</span>250</p>
+                        <p class="text-[16px] text-[#768C9C]">last year</p>
+                    </div>
+                </div>
+
+                {% comment %} <div class="w-full flex flex-col gap-2">
+                    <p class="text-[16px] text-[#4b4b4b]">This Week's Performance</p>
+
+
+                </div> {% endcomment %}
+            </div>
+    
+            <div class="w-1/2 h-full max-h-[70vh] px-[40px] py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col">
+                <h2 class="text-[20px] text-[#4b4b4b] font-semibold">Transaction Log</h2>
+    
+                <div class="grow w-full flex flex-col overflow-y-scroll gap-2">
+                    {% for i in "1234" %}
+                    <div class="w-full h-[65px] bg-white rounded-[30px] flex justify-between items-center">
+                        <div class="w-fit flex gap-2 items-center h-full">
+                            <div class="bg-gray-300 rounded-[7px] h-full aspect-square"></div>
+                            <div class="flex flex-col items-start gap-0">
+                                <p class="text-[16px] text-start font-semibold">Product Name</p>
+                                <p class="text-[12px] font-semibold text-gray-500 whitespace-nowrap">
+                                    #43e1fcd 4:15pm 20/8/2026
+                                </p>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-0">
+                            <p class="text-[16px] font-semibold">RM 24.75</p>
+                            <p class="text-[12px] font-semibold text-gray-500">x3</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}

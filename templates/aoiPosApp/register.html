@@ -1,0 +1,51 @@
+{% extends 'auth.html' %}
+{% block authcontent %}
+
+<div class="w-full h-[50vh] flex flex-col gap-[30px]">
+    <div class="w-full h-fit">
+        <h3 class="text-xl font-semibold">Create a New Account</h3>
+        <p class="text-gray-600">Fill all details to register.</p>
+    </div>
+
+    <div class="grow overflow-y-scroll">
+        <form action="" method="POST">
+            <div class="w-full flex flex-col gap-[20px]">
+                {% csrf_token %}
+                {{ form.as_p }}
+
+                {% comment %} <div class="w-full">
+                    <label for="" class="font-semibold text-gray-600 mb-1">Username</label>
+                    <input class="w-full rounded-[10px] border border-gray-300 outline-gray-300 ring-gray-500 bg-white px-5 py-3" type="text">
+                </div>
+                
+                <div class="w-full">
+                    <label for="" class="font-semibold text-gray-600 mb-1">Email</label>
+                    <input class="w-full rounded-[10px] border border-gray-300 outline-gray-300 ring-gray-500 bg-white px-5 py-3" type="text">
+                </div>
+                
+                <div class="w-full">
+                    <label for="" class="font-semibold text-gray-600 mb-1">Password</label>
+                    <input class="w-full rounded-[10px] border border-gray-300 outline-gray-300 ring-gray-500 bg-white px-5 py-3" type="password">
+                </div>
+    
+                <div class="w-full">
+                    <label for="" class="font-semibold text-gray-600 mb-1">Repeat Password</label>
+                    <input class="w-full rounded-[10px] border border-gray-300 outline-gray-300 ring-gray-500 bg-white px-5 py-3" type="password">
+                </div> {% endcomment %}
+        
+                <input
+                    class="w-full h-[46px] flex justify-center items-center bg-linear-to-r from-[#84D6FF] to-[#5188FF] font-white text-white rounded-full hover:brightness-90 cursor-pointer"
+                    value="Register" 
+                    type="submit"
+                />
+            </div>
+        </form>
+    </div>
+    
+    <a class="text-gray-600" href="{% url 'login' %}">
+        Have an account? 
+        <span class="font-semibold underline">Click here.</span>
+    </a>
+</div>
+
+{% endblock %}
