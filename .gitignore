@@ -1,6 +1,7 @@
 # Django Specific
 *.sqlite3
 db.sqlite3
+/static/images/
 /staticfiles/
 /static_cdn/
 /media/
