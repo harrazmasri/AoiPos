@@ -1,7 +1,14 @@
 import re
 from django import forms
-from aoiPosApp.models import User
+from aoiPosApp.models import Product, User
+from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
 
+def validate_file_size (file):
+    max_mb = 5
+
+    if file.size > max_mb * 1024 * 1024:
+        raise ValidationError(f"File size must be less than { max_mb }MB.")
 
 class RegisterForm (forms.ModelForm):
     r_password = forms.CharField(
@@ -63,3 +70,23 @@ class LoginForm(forms.Form):
                 self.add_error(None, "Invalid email or password")
 
         return cleaned_data
+
+
+class ProductForm(forms.ModelForm):
+
+    image_path = forms.ImageField(
+        required=False,
+        validators=[
+            FileExtensionValidator(
+                allowed_extensions=['jpg', 'jpeg', 'png', 'webp']
+            ),
+            validate_file_size,
+        ],
+        widget=forms.FileInput(attrs={
+            'accept': 'image/*'
+        })
+    )
+
+    class Meta:
+        model = Product
+        fields = ['name', 'price', 'image_path']

@@ -12,7 +12,11 @@ class Product (models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
     price = models.FloatField()
-    image_path = models.CharField(max_length=255)
+    image_path = models.ImageField(
+        upload_to='images/products/',
+        blank=True,
+        null=True,
+    )
 
 
 class Transaction (models.Model):

@@ -1,5 +1,8 @@
-from django.shortcuts import redirect, render
-from aoiPosApp.forms import LoginForm, RegisterForm
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from aoiPosApp.forms import LoginForm, RegisterForm, ProductForm
+from aoiPosApp.models import Product
+from django.core.files.storage import default_storage
 
 # Create your views here.
 def login(request):
@@ -43,11 +46,40 @@ def pos (request):
 def catalogue (request):
     return render(request, 'aoiPosApp/catalogue.html')
 
+def view(request, id=None):
+    print("========== CATALOGUE CREATE ==========")
+    print("METHOD:", request.method)
+    print("POST:", request.POST)
+    print("FILES:", request.FILES)
+
+    product = None
+
+    if id:
+        product = get_object_or_404(Product, pk=id)
+
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES, instance=product)
+
+        print("FORM VALID:", form.is_valid())
+        print("FORM ERRORS:", form.errors)
+        print("FORM NON FIELD ERRORS:", form.non_field_errors())
+
+        if form.is_valid():
+            product = form.save()
+
+            print("PRODUCT CREATED:", product.id)
+            
+            return redirect('product-view', id=product.id)
+    else:
+        form = ProductForm(instance=product)
+
+    return render(request, 'aoiPosApp/view.html', {
+        'form': form,
+        'product': product,
+    })
+
 def summary (request):
     return render(request, 'aoiPosApp/summary.html')
-
-def view (request):
-    return render(request, 'aoiPosApp/view.html')
 
 
 def logout (request):

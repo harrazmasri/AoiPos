@@ -1,10 +1,18 @@
 <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[25px]">
+    <a
+        href="{% url 'product-create' %}" 
+        class="w-full h-full border border-gray-300 overflow-clip bg-white rounded-[30px] p-[20px] flex flex-col items-center justify-center gap-[10px] text-gray-600 font-semibold hover:bg-gray-200 cursor-pointer"
+    >
+        <i class="w-[72px] h-[72px]" data-feather="plus"></i>
+        <p class="text-[20px]">Create New</p>
+    </a>
+
     {% for i in "12345678" %}
-    <div class="w-full h-[368px] bg-white rounded-[30px] p-[20px] flex flex-col gap-[25px]">
+    <div class="w-full overflow-clip bg-white rounded-[30px] p-[20px] flex flex-col gap-[25px]">
         <div class="bg-gray-300 rounded-[20px] w-full aspect-square"></div>
         <div class="flex flex-col gap-[10px]">
-            <p class="text-[20px] font-semibold">Product Name</p>
-            <p class="text-[16px] font-semibold">RM 24.75</p>
+            <p class="text-[20px] font-semibold whitespace-nowrap">Product Name</p>
+            <p class="text-[16px] font-semibold whitespace-nowrap">RM 24.75</p>
         </div>
     </div>
     {% endfor %}

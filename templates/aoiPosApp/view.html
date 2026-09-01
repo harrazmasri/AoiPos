@@ -1,47 +1,115 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block title %} - Login{% endblock %}
-{% block content %}
 
+{% block script %}
+<script>
+$(document).ready(function () {
+    const path = window.location.pathname;
+    let pageMode = 'index';
+
+    if (path.includes('/edit')) {
+        pageMode = 'edit';
+    } else if (path.includes('/create')) {
+        pageMode = 'create';
+    } else if (/^\/catalogue\/\d+\/?$/.test(path)) {
+        pageMode = 'view';
+    }
+
+    const titles = {
+        edit: 'Update Product',
+        view: 'Product Details',
+        create: 'Create Product'
+    };
+    $('#title').text(titles[pageMode] || 'Catalogue');
+
+    const $imgBtn = $('#image_btn');
+    const $imgInput = $('#image_input').length ? $('#image_input') : $('input[type="file"]');
+    const $imgPreview = $('#image_preview');
+
+    $imgBtn.on('click', function (e) {
+        e.preventDefault();
+        $imgInput[0].click();
+    });
+
+    $imgInput.on('change', function (e) {
+        const file = e.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                $imgPreview.attr('src', event.target.result).show();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    if (pageMode === 'view') {
+        $('form input, form select, form textarea').prop('disabled', true);
+        $imgBtn.hide();
+    }
+});
+</script>
+{% endblock %}
+
+{% block content %}
 <div class="w-full h-screen bg-white/80 backdrop-blur-xl flex p-[44px] gap-[30px]">
 
     <div class="grow flex flex-col items-center gap-[44px] ">
         {% include './components/navbar.html' %}
         
-        <div class="w-fit min-w-[400px] h-full max-h-[70vh] overflow-y-scroll px-[40px] py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col">
+        <form 
+            method="POST"
+            action="{% url 'product-create' %}"
+            enctype="multipart/form-data"
+            class="w-fit min-w-[400px] h-fit overflow-y-scroll px-[40px] py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col"
+        >
+            {% csrf_token %}
             <div class="flex gap-3">
-                <button class="w-[30px] h-[30px] flex items-center justify-center rounded-full hover:bg-gray-200">
+                <a href="{% url 'catalogue' %}" class="w-[30px] h-[30px] flex items-center justify-center rounded-full hover:bg-gray-200 cursor-pointer">
                     <i data-feather="chevron-left" class="w-[24px]"></i>
-                </button>
-                <h2 class="text-[20px] text-[#4b4b4b] font-semibold">Product Details</h2>
+                </a>
+                <h2 id="title" class="text-[20px] text-[#4b4b4b] font-semibold">Product Details</h2>
             </div>
 
+            {% if form.errors %}
+                <div class="bg-red-100 text-red-700 p-4 rounded-lg">
+                    {{ form.errors }}
+                </div>
+            {% endif %}
+
             <div class="w-full flex flex-col gap-3 items-center">
-                <div class="w-[250px] aspect-square rounded-[20px] bg-gray-200"></div>
-                <button class="w-[250px] h-[46px] rounded-full border border-gray-200 text-[#2D5776] flex justify-center items-center">
+                <div class="w-[250px] aspect-square rounded-[20px] bg-gray-200 overflow-clip">
+                    <img id="image_preview" src="{% static product.image_path %}" alt="Preview" class="w-full h-full object-cover" />
+                </div>
+                <input type="file" id="image_input" name="image_path" accept="image/*" class="hidden">
+                <button 
+                    id="image_btn" 
+                    type="button" 
+                    class="w-[250px] h-[46px] rounded-full border border-gray-200 text-[#2D5776] flex justify-center items-center cursor-pointer"
+                >
                     Choose Image
                 </button>
             </div>
 
             <div class="w-full">
                 <label for="" class="font-semibold text-gray-600 mb-1">Name</label>
-                <input class="w-full rounded-[10px] border border-gray-300 outline-gray-300 ring-gray-500 bg-white px-5 py-3" type="text">
+                <input name="name" value="{{ product.name|default:'' }}" class="w-full rounded-[10px] border border-gray-300 outline-gray-300 ring-gray-500 bg-white px-5 py-3" type="text">
             </div>
 
             <div class="w-full">
                 <label for="" class="font-semibold text-gray-600 mb-1">Price</label>
-                <input class="w-full rounded-[10px] border border-gray-300 outline-gray-300 ring-gray-500 bg-white px-5 py-3" type="number">
+                <input name="price" value="{{ product.price|default:'' }}" class="w-full rounded-[10px] border border-gray-300 outline-gray-300 ring-gray-500 bg-white px-5 py-3" type="number">
             </div>
 
             <button
+                type="submit"
                 class="w-full min-h-[46px] h-fit flex justify-center items-center bg-linear-to-r from-[#84D6FF] to-[#5188FF] font-white text-white rounded-full hover:brightness-90 cursor-pointer"
             >
                 Create
             </button>
-        </div>
+        </form>
     </div>
 
 </div>
-
-
 {% endblock %}
