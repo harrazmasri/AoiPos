@@ -1,0 +1,36 @@
+# Django Specific
+*.sqlite3
+db.sqlite3
+/staticfiles/
+/static_cdn/
+/media/
+
+# Python compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments and dependencies
+.env
+.venv
+env/
+venv/
+ENV/
+modules/
+bin/
+lib/
+include/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
