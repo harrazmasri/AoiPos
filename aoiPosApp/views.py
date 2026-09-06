@@ -46,6 +46,14 @@ def pos (request):
 def catalogue (request):
     return render(request, 'aoiPosApp/catalogue.html')
 
+def deleteProduct(request):
+    if request.method == "POST":
+        prodId = request.POST.get('id')
+        product = Product.objects.get(id=prodId)
+        product.delete()
+
+    return redirect('catalogue')
+    
 def view(request, id=None):
     print("========== CATALOGUE CREATE ==========")
     print("METHOD:", request.method)
