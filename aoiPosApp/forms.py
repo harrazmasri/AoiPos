@@ -90,3 +90,11 @@ class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
         fields = ['name', 'price', 'image_path']
+
+    def clean_price(self):
+        price = self.cleaned_data.get('price')
+        
+        if price is not None:
+            return round(price, 2)
+            
+        return price

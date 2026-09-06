@@ -61,6 +61,8 @@ def deleteProduct(request):
     if request.method == "POST":
         prodId = request.POST.get('id')
         product = Product.objects.get(id=prodId)
+        if product.image_path:
+            product.image_path.delete(save=False)
         product.delete()
 
     return redirect('catalogue')

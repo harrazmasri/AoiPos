@@ -13,7 +13,7 @@ class Product (models.Model):
     name = models.CharField(max_length=255)
     price = models.FloatField()
     image_path = models.ImageField(
-        upload_to='images/products/',
+        upload_to='products/',
         blank=True,
         null=True,
     )

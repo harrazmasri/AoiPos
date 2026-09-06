@@ -9,12 +9,14 @@
     </a>
 
     {% for product in products %}
-        <div class="w-full bg-white rounded-[30px] p-[20px] flex flex-col gap-[25px]">
+        <a href="{% url 'product-view' product.id %}" class="relative w-full bg-white rounded-[30px] p-[20px] flex flex-col gap-[25px] hover:brightness-80">
             {% if product.image_path %}
-                <img
-                    src="{% static product.image_path %}"
-                    class="rounded-[20px] w-full aspect-square object-cover"
-                    alt="{{ product.name }}">
+                <img 
+                    id="image_preview" 
+                    src="{% if product and product.image_path %}{{ product.image_path.url }}{% endif %}" 
+                    alt="Preview" 
+                    class="w-full h-full object-cover rounded-[20px] {% if not product or not product.image_path %}hidden{% endif %}" 
+                />
             {% else %}
                 <div class="bg-gray-300 rounded-[20px] w-full aspect-square"></div>
             {% endif %}
@@ -30,14 +32,14 @@
 
                         <button
                             type="submit"
-                            class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600"
+                            class="absolute top-2 right-2 bg-red-500 w-[50px] h-[50px] text-white flex justify-center items-center rounded-full hover:bg-red-600 hover:brightness-80 cursor-pointer"
                         >
-                            Delete
+                            <i data-feather="trash" class="w-[20px] h-[20px] text-white"></i>
                         </button>
                     </form>
                 {% endif %}
             </div>
-        </div>
+        </a>
     {% empty %}
         <p>No products have been added yet.</p>
     {% endfor %}

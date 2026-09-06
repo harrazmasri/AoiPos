@@ -17,6 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from aoiPosApp import views as aoiView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,6 +31,8 @@ urlpatterns = [
     path('catalogue/<int:id>/edit', aoiView.view, name="product-edit"),
     path('catalogue/create/', aoiView.view, name="product-create"),
     path('catalogue/delete/', aoiView.deleteProduct, name='product-delete'),
-    path('logout/', aoiView.logout, name="logout"),
-    
+    path('logout/', aoiView.logout, name="logout"),    
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

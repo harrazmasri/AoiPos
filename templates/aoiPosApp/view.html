@@ -26,6 +26,8 @@ $(document).ready(function () {
     const $imgBtn = $('#image_btn');
     const $imgInput = $('#image_input').length ? $('#image_input') : $('input[type="file"]');
     const $imgPreview = $('#image_preview');
+    const $createBtn = $('#createBtn');
+    const $editBtn = $('#editBtn');
 
     $imgBtn.on('click', function (e) {
         e.preventDefault();
@@ -46,7 +48,16 @@ $(document).ready(function () {
 
     if (pageMode === 'view') {
         $('form input, form select, form textarea').prop('disabled', true);
+        
+        $('input').css({
+                'border': 'none',
+                'padding': '0',
+                'font-size': '20px',
+            });
+
         $imgBtn.hide();
+        $createBtn.hide();
+        $editBtn.show();
     }
 });
 </script>
@@ -60,7 +71,6 @@ $(document).ready(function () {
         
         <form 
             method="POST"
-            action="{% url 'product-create' %}"
             enctype="multipart/form-data"
             class="w-fit min-w-[400px] h-fit overflow-y-scroll px-[40px] py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col"
         >
@@ -80,7 +90,12 @@ $(document).ready(function () {
 
             <div class="w-full flex flex-col gap-3 items-center">
                 <div class="w-[250px] aspect-square rounded-[20px] bg-gray-200 overflow-clip">
-                    <img id="image_preview" src="{% static product.image_path %}" alt="Preview" class="w-full h-full object-cover" />
+                    <img 
+                        id="image_preview" 
+                        src="{% if product and product.image_path %}{{ product.image_path.url }}{% endif %}" 
+                        alt="Preview" 
+                        class="w-full h-full object-cover {% if not product or not product.image_path %}hidden{% endif %}" 
+                    />
                 </div>
                 <input type="file" id="image_input" name="image_path" accept="image/*" class="hidden">
                 <button 
@@ -99,15 +114,31 @@ $(document).ready(function () {
 
             <div class="w-full">
                 <label for="" class="font-semibold text-gray-600 mb-1">Price</label>
-                <input name="price" value="{{ product.price|default:'' }}" class="w-full rounded-[10px] border border-gray-300 outline-gray-300 ring-gray-500 bg-white px-5 py-3" type="number">
+                <input name="price" value="{{ product.price|default:'' }}" class="w-full rounded-[10px] border border-gray-300 outline-gray-300 ring-gray-500 bg-white px-5 py-3" type="number" min="1" step="any">
             </div>
 
             <button
+                id="createBtn"
                 type="submit"
                 class="w-full min-h-[46px] h-fit flex justify-center items-center bg-linear-to-r from-[#84D6FF] to-[#5188FF] font-white text-white rounded-full hover:brightness-90 cursor-pointer"
             >
-                Create
+                {% if product and product.id %}
+                    Update
+                {% else %}
+                    Create
+                {% endif %}
             </button>
+
+            <a
+                id="editBtn"
+                href="{% if product %}{% url 'product-edit' product.id %}{% endif %}"
+                type="submit"
+                class="hidden w-full min-h-[46px] h-fit bg-linear-to-r from-[#84D6FF] to-[#5188FF] font-white text-white rounded-full hover:brightness-90 cursor-pointer"
+            >
+                <div class="w-full h-full flex justify-center items-center">
+                    Edit
+                </div>
+            </a>
         </form>
     </div>
 
