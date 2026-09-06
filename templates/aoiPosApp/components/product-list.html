@@ -1,5 +1,7 @@
 {% load static %}
+{% url 'catalogue' as cat %}
 <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[25px]">
+    {% if request.path == cat %}
     <a
         href="{% url 'product-create' %}" 
         class="w-full h-full border border-gray-300 overflow-clip bg-white rounded-[30px] p-[20px] flex flex-col items-center justify-center gap-[10px] text-gray-600 font-semibold hover:bg-gray-200 cursor-pointer"
@@ -7,9 +9,21 @@
         <i class="w-[72px] h-[72px]" data-feather="plus"></i>
         <p class="text-[20px]">Create New</p>
     </a>
+    {% endif %}
 
     {% for product in products %}
-        <a href="{% url 'product-view' product.id %}" class="relative w-full bg-white rounded-[30px] p-[20px] flex flex-col gap-[25px] hover:brightness-80">
+        {% if request.path != cat %}
+        <button
+            type="button"
+            data-product-id="{{ product.id }}"
+            class="productBtn relative w-full bg-white rounded-[30px] p-[20px] flex flex-col gap-[25px] hover:brightness-80 cursor-pointer"
+        >
+        {% else %}
+        <a  
+            href="{% url 'product-view' product.id %}" 
+            class="relative w-full bg-white rounded-[30px] p-[20px] flex flex-col gap-[25px] hover:brightness-80 cursor-pointer"
+        >
+        {% endif %}
             {% if product.image_path %}
                 <img 
                     id="image_preview" 
@@ -30,16 +44,22 @@
                         {% csrf_token %}
                         <input type="hidden" name="id" value="{{ product.id }}">
 
+                        {% if request.path == cat %}
                         <button
                             type="submit"
                             class="absolute top-2 right-2 bg-red-500 w-[50px] h-[50px] text-white flex justify-center items-center rounded-full hover:bg-red-600 hover:brightness-80 cursor-pointer"
                         >
                             <i data-feather="trash" class="w-[20px] h-[20px] text-white"></i>
                         </button>
+                        {% endif %}
                     </form>
                 {% endif %}
             </div>
+        {% if request.path == cat %}
         </a>
+        {% else %}
+        </button>
+        {% endif %}
     {% empty %}
         <p>No products have been added yet.</p>
     {% endfor %}

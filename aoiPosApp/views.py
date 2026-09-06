@@ -1,5 +1,6 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from aoiPOS import settings
 from aoiPosApp.forms import LoginForm, RegisterForm, ProductForm
 from aoiPosApp.models import Product
 from django.core.files.storage import default_storage
@@ -106,3 +107,22 @@ def summary (request):
 def logout (request):
     request.session.flush()
     return redirect('login')
+
+
+def getProductList(request):
+    products = Product.objects.all()
+    data = []
+
+    for product in products:
+        image_url = ""
+        if product.image_path:
+            image_url = f"{settings.MEDIA_URL}{product.image_path}"
+
+        data.append({
+            'id': product.id,
+            'name': product.name,
+            'price': float(product.price) if product.price else 0.0,
+            'image_url': image_url,
+        })
+
+    return JsonResponse(data, safe=False)

@@ -1,6 +1,175 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %} - Login{% endblock %}
+{% block title %} - Cashier POS{% endblock %}
+
+{% block script %}
+<script>
+    let cart = [];
+    let existingProducts = []
+    let totalAmount = 0.00;
+
+    const getProductList = async () => {
+        try {
+            const response = await fetch(`${ window.location.origin }/api/get-product-list`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            console.log(data);
+
+            existingProducts = data;
+        }
+        catch (error) {
+            console.error(`getProductList: ${error}`)
+        }
+    }
+
+    const searchProductList = (productId) => {
+        return existingProducts.find(item => item.id == productId);
+    }
+    
+    const searchCartList = (productId) => {
+        return cart.find(item => item.id == productId);
+    }
+
+    const plus = (productId) => {
+        console.log('test');
+        const existingCart = searchCartList(productId);
+        if (existingCart && existingCart.quantity < 20) {
+            existingCart.quantity += 1;
+            updateCalculator();
+        }
+    };
+
+    const minus = (productId) => {
+        const existingCart = searchCartList(productId);
+        if (!existingCart) return;
+
+        if (existingCart.quantity > 1) {
+            existingCart.quantity -= 1;
+        } else {
+            cart = cart.filter(item => item.id != productId);
+        }
+        updateCalculator();
+    };
+
+    const addToCart = (productId) => {
+        const product = searchProductList(productId);
+        const existingCart = searchCartList(productId);
+
+        if (!product) {
+            console.warn(`Product #${productId} not found`);
+            return;
+        }
+
+        if (existingCart) {
+            existingCart.quantity += 1;
+        } else {
+            cart.push({
+                ...product,
+                quantity: 1,
+            })
+        }
+
+        updateCalculator();
+        console.log(cart)
+    }
+
+    const calculateTotalAmount = () => {
+        totalAmount = cart.reduce((accumulator, currentItem) => accumulator + (currentItem.price * currentItem.quantity), 0);
+    }
+
+    const updateCalculator = () => {
+        $cartItemDOM = $('.cartItemDOM');
+        let cartItemDOM = '';
+
+        cart.forEach((item, index) => {
+            const imgSrc = item.image_url.startsWith('http') 
+                ? item.image_url 
+                : `${window.location.origin}${item.image_url}`;
+
+            cartItemDOM += `
+                <div class="w-full h-[65px] bg-white rounded-[30px] flex justify-between items-center">
+                    <div class="w-fit flex gap-2 items-center h-full">
+                        <div class="bg-gray-300 rounded-[7px] h-full aspect-square overflow-clip">
+                            <img 
+                                src="${ window.location.origin }/${ item.image_url }" 
+                                alt="thumbnail" 
+                                class="w-full h-full object-cover" 
+                            />
+                        </div>
+                        <p class="text-[16px] font-semibold">${ item.name }</p>
+                    </div>
+                    <div class="flex gap-[10px]">
+                        <div class="w-fit flex gap-2 items-center">
+                            <button
+                                type="button"
+                                data-product-id="${ item.id }" 
+                                class="minusBtn w-[20px] h-[20px] rounded border border-gray-300 flex items-center justify-center hover:bg-gray-200 cursor-pointer"
+                            >
+                                <i data-feather="chevron-left" class="text-gray-600 w-[12px]"></i>
+                            </button>
+                            <p class="text-[16px] w-[25px] text-center font-semibold">${ item.quantity }</p>
+                            <button
+                                type="button"
+                                data-product-id="${ item.id }" 
+                                class="addBtn w-[20px] h-[20px] rounded border border-gray-300 flex items-center justify-center hover:bg-gray-200 cursor-pointer"
+                            >
+                                <i data-feather="chevron-right" class="text-gray-600 w-[12px]"></i>
+                            </button>
+                        </div>
+                        <p class="text-[16px] font-semibold">RM ${ item.price * item.quantity }</p>
+                    </div>
+                </div>
+            `;
+        });
+
+        $cartItemDOM.html(cartItemDOM)
+
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+
+        calculateTotalAmount();
+
+        $('.totalAmountDom').html(totalAmount.toFixed(2));
+    }
+
+    $(document).ready(function() {
+        const $calculatorDOM = $('#calculatorDOM');
+
+        getProductList();
+
+        $(document).on('click', '.productBtn', (e) => {
+            const productId = $(e.currentTarget).data('productId');
+            console.log(productId);
+            addToCart(productId)
+        });
+
+        if ($calculatorDOM.length > 0) {
+            updateCalculator();
+        }
+        else {
+            console.error('Calculator component is not rendered');
+        }
+
+       $(document).on('click', '.addBtn', function() {
+            const productId = $(this).data('productId');
+            plus(productId);
+        });
+
+        $(document).on('click', '.minusBtn', function() {
+            const productId = $(this).data('productId');
+            minus(productId);
+        });
+
+    });
+</script>
+{% endblock %}
+
 {% block content %}
 
 <div class="w-full h-screen bg-white/80 backdrop-blur-xl flex p-[44px] gap-[30px]">

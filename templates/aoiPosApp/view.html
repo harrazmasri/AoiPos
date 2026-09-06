@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %} - Login{% endblock %}
+{% block title %} -
+    {% if '/create' in request.path %}
+        Create Product
+    {% elif '/edit' in request.path %}
+        Edit {{ product.name }}
+    {% elif product and product.id %}
+        {{ product.name }}
+    {% endif %}
+{% endblock %}
 
 {% block script %}
 <script>
