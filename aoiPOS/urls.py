@@ -23,13 +23,12 @@ urlpatterns = [
     path('', aoiView.login, name="login"),
     path('register/', aoiView.register, name="register"),
     path('pos/', aoiView.pos, name="pos"),
-    path('catalogue/', aoiView.catalogue, name="catalogue"),
-    path('delete-product/', aoiView.deleteProduct, name='delete-product'),
     path('summary/', aoiView.summary, name="summary"),
     path('catalogue/', aoiView.catalogue, name="catalogue"),
     path('catalogue/<int:id>/', aoiView.view, name="product-view"),
     path('catalogue/<int:id>/edit', aoiView.view, name="product-edit"),
     path('catalogue/create/', aoiView.view, name="product-create"),
+    path('catalogue/delete/', aoiView.deleteProduct, name='product-delete'),
     path('logout/', aoiView.logout, name="logout"),
     
 ]
