@@ -8,10 +8,25 @@
     <div class="grow flex flex-col gap-[44px] ">
         {% include './components/navbar.html' %}
         <div class="grow overflow-y-scroll">
-            {% include './components/product-list.html' %}
+            {% include './components/product-list.html' with show_delete=True %}
         </div>
     </div>
+<div class="bg-white rounded-[30px] p-[25px]">
+    <h2 class="text-[24px] font-semibold mb-[20px]">Add Product</h2>
 
+    <form method="POST" class="flex flex-col gap-[15px]">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button
+            type="submit"
+            class="bg-[#205B8C] text-white py-2 px-4 rounded-md hover:bg-[#174568]"
+        >
+            Add Product
+        </button>
+    </form>
+</div>
 </div>
 
 

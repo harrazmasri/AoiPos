@@ -8,7 +8,7 @@
     <div class="grow flex flex-col gap-[44px] ">
         {% include './components/navbar.html' %}
         <div class="grow overflow-y-scroll">
-            {% include './components/product-list.html' %}
+            {% include './components/product-list.html' with show_delete=True %}
         </div>
     </div>
 

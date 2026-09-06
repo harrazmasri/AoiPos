@@ -41,10 +41,21 @@ def register (request):
     })
 
 def pos (request):
-    return render(request, 'aoiPosApp/pos-dashboard.html')
+    products = Product.objects.all()
+    return render(request, 'aoiPosApp/pos-dashboard.html', {'products': products})
 
 def catalogue (request):
-    return render(request, 'aoiPosApp/catalogue.html')
+    products = Product.objects.all()
+    form = ProductForm()
+
+    if request.method == "POST":
+        form = ProductForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+            return redirect('catalogue')
+
+    return render(request, 'aoiPosApp/catalogue.html', {'products': products,'form': form,})
 
 def deleteProduct(request):
     if request.method == "POST":
