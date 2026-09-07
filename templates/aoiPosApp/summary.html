@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %} - Login{% endblock %}
+{% block title %} - Sales Summary{% endblock %}
+
+{% block script %}
+<script>
+    $(document).ready(function () {
+    });
+</script>
+{% endblock %}
+
 {% block content %}
 
 <div class="w-full h-screen bg-white/80 backdrop-blur-xl flex p-[44px] gap-[30px]">
@@ -9,7 +17,7 @@
         {% include './components/navbar.html' %}
         
         <div class="w-full flex gap-[30px]">
-            <div class="w-1/2 h-full max-h-[70vh] px-[40px] py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col">
+            <div class="w-1/2 h-fit max-h-[70vh] px-[40px] py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col">
                 <h2 class="text-[20px] text-[#4b4b4b] font-semibold">Performance Analytics</h2>
                 
                 <div class="w-full grid grid-cols-3 gap-5">
@@ -44,33 +52,60 @@
                     </div>
                 </div>
 
-                {% comment %} <div class="w-full flex flex-col gap-2">
-                    <p class="text-[16px] text-[#4b4b4b]">This Week's Performance</p>
-
-
-                </div> {% endcomment %}
             </div>
     
-            <div class="w-1/2 h-full max-h-[70vh] px-[40px] py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col">
+            <div class="w-1/2 h-fit max-h-[70vh] px-[40px] py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col">
                 <h2 class="text-[20px] text-[#4b4b4b] font-semibold">Transaction Log</h2>
     
-                <div class="grow w-full flex flex-col overflow-y-scroll gap-2">
-                    {% for i in "1234" %}
-                    <div class="w-full h-[65px] bg-white rounded-[30px] flex justify-between items-center">
-                        <div class="w-fit flex gap-2 items-center h-full">
-                            <div class="bg-gray-300 rounded-[7px] h-full aspect-square"></div>
-                            <div class="flex flex-col items-start gap-0">
-                                <p class="text-[16px] text-start font-semibold">Product Name</p>
-                                <p class="text-[12px] font-semibold text-gray-500 whitespace-nowrap">
-                                    #43e1fcd 4:15pm 20/8/2026
+                <div class="grow w-full flex flex-col overflow-y-scroll gap-7">
+                    {% for trx in transactions %}
+                        <div class="w-full flex flex-col gap-3 pt-3 border-t border-gray-300">
+                            <div class="w-full text-gray-500 font-semibold gap-2 flex justify-between items-center text-sm">
+                                <p>#{{ trx.unique_id }}</p>
+                                <p>{{ trx.created_at }}</p>
+                                <p>
+                                    {% if trx.status %}
+                                        <span class="py-1 px-2 rounded-full bg-green-100 font-semibold text-xs text-green-800">success</span>
+                                    {% else %}
+                                        <span class="py-1 px-2 rounded-full bg-red-100 font-semibold text-xs text-red-800">failed</span>
+                                    {% endif %}
                                 </p>
                             </div>
+                            <div class="w-full flex flex-col gap-2">
+                                {% for product in trx.items.all %}
+                                    <div class="w-full h-[65px] bg-white rounded-[30px] flex justify-between items-center">
+                                        <div class="w-fit flex gap-4 items-center h-full">
+                                            <div class="bg-gray-300 rounded-[7px] h-full aspect-square">
+                                                <img 
+                                                    src="{% if product.product and product.product.image_path %}{{ product.product.image_path.url }}{% endif %}" 
+                                                    alt="{{ product.product_name }}" 
+                                                    class="w-full h-full object-cover rounded-[7px] {% if not product.product or not product.product.image_path %}hidden{% endif %}" 
+                                                />
+                                            </div>
+                                            <div class="flex flex-col items-start gap-0">
+                                                <p class="text-[16px] text-start font-semibold">{{ product.product_name }}</p>
+                                                {% comment %} <p class="text-[12px] font-semibold text-gray-500 whitespace-nowrap">
+                                                    {{  }}
+                                                </p> {% endcomment %}
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col items-end gap-0">
+                                            <p class="text-[16px] font-semibold">RM {{ product.unit_price }}</p>
+                                            <p class="text-[12px] font-semibold text-gray-500">x{{ product.quantity }}</p>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <p class="flex justify-end items-end gap-2">
+                                {% if trx.discount_rate > 0 %}
+                                    <span>-{{ trx.discount_rate }}%</span>
+                                    <span class="line-through">
+                                        RM{{ trx.total_amount }}
+                                    </span>
+                                {%endif%}
+                                <span class="text-xl font-semibold">RM{{ trx.effective_amount }}</span>
+                            </p>
                         </div>
-                        <div class="flex flex-col items-end gap-0">
-                            <p class="text-[16px] font-semibold">RM 24.75</p>
-                            <p class="text-[12px] font-semibold text-gray-500">x3</p>
-                        </div>
-                    </div>
                     {% endfor %}
                 </div>
             </div>

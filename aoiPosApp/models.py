@@ -1,10 +1,11 @@
 from decimal import Decimal
+import uuid
 
 from django.db import models
 from django.utils.crypto import get_random_string
 
-def random_string():
-    return f"{get_random_string(length=8).upper()}"
+def generate_transaction_id():
+    return f"Transaction-{uuid.uuid4().hex[:8].upper()}"
 
 # Create your models here.
 class User (models.Model):
@@ -26,10 +27,15 @@ class Product (models.Model):
 
 
 class Transaction (models.Model):
+    @property
+    def discount_rate(self):
+        # e.g., 100 - 75 = 25
+        return 100 - self.cut_price
+
     id = models.BigAutoField(primary_key=True)
     unique_id = models.CharField(
         max_length=100,
-        default=f"Transaction-{random_string}",
+        default=generate_transaction_id,
         unique=True,
         editable=False,
     )
@@ -43,6 +49,11 @@ class Transaction (models.Model):
         blank = True,
     )
     total_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+    )
+    effective_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         default=0.00,
@@ -67,7 +78,5 @@ class TransactionItem (models.Model):
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
 
     def save (self, *args, **kwargs): # *args contain tuple of checkout items, *kwargs accept dict, * same as spread operator in js (...)
-        discount_percentage = Decimal(str(self.transaction.cut_price)) / Decimal('100.00')
-        effective_price = Decimal(str(self.unit_price)) * discount_percentage
-        self.subtotal = effective_price * Decimal(str(self.quantity))
+        self.subtotal = Decimal(str(self.unit_price)) * Decimal(str(self.quantity))
         super().save(*args, **kwargs)

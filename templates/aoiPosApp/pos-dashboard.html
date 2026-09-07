@@ -176,6 +176,16 @@
         }
     };
 
+    const resetPOS = () => {
+        toggleCheckoutModal();
+        cart = [];
+        baseAmount = 0.00;
+        totalAmount = 0.00;
+        priceCut = 100;
+        checkoutModalActive = false;
+        updateCalculator();
+    }
+
     const storeTransaction = async (isSuccess) => {
         try {
             const payload = {
@@ -202,7 +212,9 @@
                 }
             );
 
-            console.log(await response.json())
+            console.log(await response.json());
+
+            resetPOS();
         }
         catch (error) {
             console.error(error);

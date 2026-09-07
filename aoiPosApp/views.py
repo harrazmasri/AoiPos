@@ -1,3 +1,4 @@
+from decimal import Decimal
 import json
 
 from django.db import transaction
@@ -104,7 +105,18 @@ def view(request, id=None):
     })
 
 def summary (request):
-    return render(request, 'aoiPosApp/summary.html')
+
+    transactions = Transaction.objects.all().select_related('user').prefetch_related('items__product').order_by('-created_at')
+
+    pageData = {
+        'performance': {
+
+        },
+
+        'transactions': transactions,
+    }
+
+    return render(request, 'aoiPosApp/summary.html', pageData)
 
 
 def logout (request):
@@ -222,6 +234,8 @@ def storeTransaction(request):
                     running_total += transaction_item.subtotal
 
                 new_transaction.total_amount = running_total
+                discount_factor = Decimal(str(cut_price)) / Decimal('100.00')
+                new_transaction.effective_amount = running_total * discount_factor
                 new_transaction.save()
 
             return JsonResponse({
