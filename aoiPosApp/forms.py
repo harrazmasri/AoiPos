@@ -1,6 +1,6 @@
 import re
 from django import forms
-from aoiPosApp.models import Product, User
+from aoiPosApp.models import Product, Transaction, User
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
 
@@ -98,3 +98,10 @@ class ProductForm(forms.ModelForm):
             return round(price, 2)
             
         return price
+
+
+
+class TransactionForm(forms.ModelForm):
+    class Meta:
+        model=Transaction
+        fields='__all__'

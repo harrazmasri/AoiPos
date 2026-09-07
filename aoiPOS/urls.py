@@ -34,7 +34,9 @@ urlpatterns = [
     path('logout/', aoiView.logout, name="logout"),    
 
     # api routes
+    path('api/get-auth-user', aoiView.getAuthUser),
     path('api/get-product-list', aoiView.getProductList),
+    path('api/store-transaction', aoiView.storeTransaction),
 ]
 
 if settings.DEBUG:

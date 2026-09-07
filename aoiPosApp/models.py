@@ -1,4 +1,10 @@
+from decimal import Decimal
+
 from django.db import models
+from django.utils.crypto import get_random_string
+
+def random_string():
+    return f"{get_random_string(length=8).upper()}"
 
 # Create your models here.
 class User (models.Model):
@@ -11,7 +17,7 @@ class User (models.Model):
 class Product (models.Model):
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
-    price = models.FloatField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     image_path = models.ImageField(
         upload_to='products/',
         blank=True,
@@ -21,12 +27,47 @@ class Product (models.Model):
 
 class Transaction (models.Model):
     id = models.BigAutoField(primary_key=True)
-    unique_id = models.CharField(max_length=100)
+    unique_id = models.CharField(
+        max_length=100,
+        default=f"Transaction-{random_string}",
+        unique=True,
+        editable=False,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField()
-    created_at = models.DateTimeField()
+    cut_price = models.DecimalField(max_digits=5, decimal_places=2, default=100.00)
     user = models.ForeignKey(
         User,
         on_delete = models.SET_NULL,
         null = True,
         blank = True,
     )
+    total_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+    )
+
+
+class TransactionItem (models.Model):
+    id = models.BigAutoField(primary_key=True)
+    transaction = models.ForeignKey(
+        Transaction,
+        related_name='items',
+        on_delete=models.CASCADE
+    )
+    product = models.ForeignKey(
+        Product, 
+        on_delete=models.SET_NULL, 
+        null=True
+    )
+    product_name = models.CharField(max_length=255)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.PositiveIntegerField(default=1)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def save (self, *args, **kwargs): # *args contain tuple of checkout items, *kwargs accept dict, * same as spread operator in js (...)
+        discount_percentage = Decimal(str(self.transaction.cut_price)) / Decimal('100.00')
+        effective_price = Decimal(str(self.unit_price)) * discount_percentage
+        self.subtotal = effective_price * Decimal(str(self.quantity))
+        super().save(*args, **kwargs)

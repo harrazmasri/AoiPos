@@ -6,7 +6,28 @@
 <script>
     let cart = [];
     let existingProducts = []
+    let baseAmount = 0.00;
     let totalAmount = 0.00;
+    let priceCut = 100; // 100: full, 50: half, 0: free
+    let checkoutModalActive = false;
+    let authUser = null;
+
+    const getAuthUser = async () => {
+        try {
+            const response = await fetch(`${ window.location.origin }/api/get-auth-user`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            authUser = data;
+        }
+        catch (error) {
+            console.error(`auth user: ${error}`)
+        }
+    }
 
     const getProductList = async () => {
         try {
@@ -17,8 +38,6 @@
             }
 
             const data = await response.json();
-
-            console.log(data);
 
             existingProducts = data;
         }
@@ -36,7 +55,6 @@
     }
 
     const plus = (productId) => {
-        console.log('test');
         const existingCart = searchCartList(productId);
         if (existingCart && existingCart.quantity < 20) {
             existingCart.quantity += 1;
@@ -75,15 +93,17 @@
         }
 
         updateCalculator();
-        console.log(cart)
     }
 
     const calculateTotalAmount = () => {
         totalAmount = cart.reduce((accumulator, currentItem) => accumulator + (currentItem.price * currentItem.quantity), 0);
+        baseAmount = totalAmount;
+        totalAmount = totalAmount * priceCut / 100;
     }
 
     const updateCalculator = () => {
         $cartItemDOM = $('.cartItemDOM');
+        $priceCutDOM = $('.priceCutDOM');
         let cartItemDOM = '';
 
         cart.forEach((item, index) => {
@@ -107,15 +127,15 @@
                         <div class="w-fit flex gap-2 items-center">
                             <button
                                 type="button"
-                                data-product-id="${ item.id }" 
+                                data-product-id="${ item.id }"
                                 class="minusBtn w-[20px] h-[20px] rounded border border-gray-300 flex items-center justify-center hover:bg-gray-200 cursor-pointer"
                             >
                                 <i data-feather="chevron-left" class="text-gray-600 w-[12px]"></i>
                             </button>
-                            <p class="text-[16px] w-[25px] text-center font-semibold">${ item.quantity }</p>
+                            <p class="text-[16px] w-[25px] text-center font-semibold">x${ item.quantity }</p>
                             <button
                                 type="button"
-                                data-product-id="${ item.id }" 
+                                data-product-id="${ item.id }"
                                 class="addBtn w-[20px] h-[20px] rounded border border-gray-300 flex items-center justify-center hover:bg-gray-200 cursor-pointer"
                             >
                                 <i data-feather="chevron-right" class="text-gray-600 w-[12px]"></i>
@@ -127,7 +147,13 @@
             `;
         });
 
-        $cartItemDOM.html(cartItemDOM)
+        $cartItemDOM.html(cartItemDOM);
+
+        if (priceCut != null && priceCut >= 0 && priceCut < 100) {
+            $priceCutDOM.html(`-${ 100 - priceCut }% <span class="line-through">RM${ baseAmount }</span>`);
+        } else {
+            $priceCutDOM.html('');
+        }
 
         if (typeof feather !== 'undefined') {
             feather.replace();
@@ -138,14 +164,63 @@
         $('.totalAmountDom').html(totalAmount.toFixed(2));
     }
 
+    const toggleCheckoutModal = () => {
+        checkoutModalActive = !checkoutModalActive;
+        
+        const $checkoutModalDOM = $('.checkoutModalDOM');
+
+        if (checkoutModalActive) {
+            $checkoutModalDOM.removeClass('hidden');
+        } else {
+            $checkoutModalDOM.addClass('hidden');
+        }
+    };
+
+    const storeTransaction = async (isSuccess) => {
+        try {
+            const payload = {
+                // transaction
+                isSuccess,
+                user: authUser.id,
+                cut_price: priceCut,
+
+                // transaction item
+                items: [...cart],
+            }
+
+            console.log(payload);
+
+            const response = await fetch(
+                `${window.origin}/api/store-transaction`, 
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
+
+            console.log(await response.json())
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
+
     $(document).ready(function() {
         const $calculatorDOM = $('#calculatorDOM');
+        // totalAmountDom
+        // failedBtn
+        // successBtn
+        // priceCutBtn
 
+        getAuthUser();
         getProductList();
 
         $(document).on('click', '.productBtn', (e) => {
             const productId = $(e.currentTarget).data('productId');
-            console.log(productId);
             addToCart(productId)
         });
 
@@ -166,13 +241,30 @@
             minus(productId);
         });
 
+        $(document).on('click', '.checkoutBtn, .closeCheckoutBtn', () => {
+            toggleCheckoutModal();
+        });
+
+        $(document).on('click', '.priceCutBtn', (e) => {
+            priceCut = $(e.currentTarget).data('value');
+            console.log(`Price cut ${priceCut}$`);
+            updateCalculator();
+        });
+
+        $(document).on('click', '.successBtn', () => {
+            storeTransaction(true);
+        });
+        
+        $(document).on('click', '.failedBtn', () => {
+            storeTransaction(false);
+        });
     });
 </script>
 {% endblock %}
 
 {% block content %}
 
-<div class="w-full h-screen bg-white/80 backdrop-blur-xl flex p-[44px] gap-[30px]">
+<div class="relative w-full h-screen bg-white/80 backdrop-blur-xl flex p-[44px] gap-[30px]">
 
     <div class="grow flex flex-col gap-[44px] ">
         {% include './components/navbar.html' %}

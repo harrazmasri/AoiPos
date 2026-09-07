@@ -1,8 +1,11 @@
+import json
+
+from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from aoiPOS import settings
-from aoiPosApp.forms import LoginForm, RegisterForm, ProductForm
-from aoiPosApp.models import Product
+from aoiPosApp.forms import LoginForm, RegisterForm, ProductForm, TransactionForm
+from aoiPosApp.models import Product, Transaction, TransactionItem, User
 from django.core.files.storage import default_storage
 
 # Create your views here.
@@ -109,6 +112,35 @@ def logout (request):
     return redirect('login')
 
 
+######### API functions ##########
+
+def getAuthUser(request):
+    if request.method == 'GET':
+        session_user_id = request.session.get('user_id')
+        
+        user = User.objects.filter(id=session_user_id).first() if session_user_id else None
+
+        if not user and request.user.is_authenticated:
+            user = request.user
+
+        if user:
+            data = {
+                'authenticated': True,
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+            }
+            return JsonResponse(data)
+        
+        return JsonResponse({
+            'authenticated': False,
+            'id': '',
+            'username': '',
+            'email': '',
+        }, status=200)
+
+    return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 def getProductList(request):
     products = Product.objects.all()
     data = []
@@ -126,3 +158,92 @@ def getProductList(request):
         })
 
     return JsonResponse(data, safe=False)
+
+
+def storeTransaction(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+
+            # {
+            #     "isSuccess": true,
+            #     "user": 1,
+            #     "cut_price": 25,
+            #     "items": [
+            #         {
+            #             "id": 2,
+            #             "name": "davrqa",
+            #             "price": 123.55,
+            #             "image_url": "/media/products/the-original-image-of-the-monkey-thinking-meme-v0-94pwblzk4caf1_Sf8Gy7q.jpg",
+            #             "quantity": 1
+            #         }
+            #     ]
+            # }
+
+            user_id = data.get('user')
+            is_success = data.get('isSuccess')
+            cart_items = data.get('items', [])
+            cut_price = data.get('cut_price', 100.00)
+
+            if not cart_items:
+                return JsonResponse(
+                    {
+                        'status': 'error',
+                        'message': 'Cart cannot be empty',
+                    }, 
+                    status=400,
+                )
+
+            user_instance = User.objects.filter(id=user_id).first() if user_id else None
+
+            with transaction.atomic(): # db transaction for rollback
+                new_transaction = Transaction.objects.create(
+                    user=user_instance,
+                    cut_price=cut_price,
+                    status=is_success,
+                )
+
+                running_total = 0
+
+                for item in cart_items:
+                    product_instance = Product.objects.filter(id=item.get('id')).first()
+
+                    unit_price = item.get('price', 0.0)
+                    quantity = item.get('quantity', 1)
+
+                    transaction_item = TransactionItem.objects.create(
+                        transaction=new_transaction,
+                        product=product_instance,
+                        product_name=item.get('name', ''),
+                        unit_price=unit_price,
+                        quantity=quantity
+                    )
+
+                    running_total += transaction_item.subtotal
+
+                new_transaction.total_amount = running_total
+                new_transaction.save()
+
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Transaction has been saved',
+                'transaction_id': new_transaction.unique_id,
+                'total_amount': float(new_transaction.total_amount)
+            }, status=201)
+
+        except json.JSONDecodeError:
+            return JsonResponse(
+                {
+                    'status': 'error',
+                    'message': 'Invalid JSON body',
+                },
+                status=400,
+            )
+        except Exception as e:
+            return JsonResponse(
+                {
+                    'status': 'error',
+                    'message': str(e),
+                }, 
+                status=500
+            )
