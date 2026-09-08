@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import check_password, make_password
 from aoiPosApp.models import Product, Transaction, User
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
+from django.contrib.auth.hashers import make_password, check_password
 
 def validate_file_size (file):
     max_mb = 5
@@ -47,12 +48,12 @@ class RegisterForm (forms.ModelForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.password = make_password(self.cleaned_data['password'])
+        user.password = make_password(user.password)
 
         if commit:
             user.save()
+
         return user
-    
 
 class LoginForm(forms.Form):
     email = forms.EmailField(

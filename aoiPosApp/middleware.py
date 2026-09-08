@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import redirect
 
 class SessionAuthMiddleware:
@@ -6,10 +8,11 @@ class SessionAuthMiddleware:
 
     def __call__(self, request):
         public_urls = ['/', '/register/', '/admin/']
+        is_admin_url = request.path == '/admin' or request.path.startswith('/admin/')
 
         user_id = request.session.get('user_id')
 
-        if not user_id and request.path not in public_urls:
+        if not user_id and request.path not in public_urls and not is_admin_url:
             request.session.flush()
             return redirect('login')
 
