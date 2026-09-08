@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="relative z-10 min-h-screen p-8">
+    {% include 'aoiPosApp/components/navbar.html' %}
+
+<a href="{% url 'pos' %}"class="text-xl font-bold text-[#4b4b4b] hover:text-[#205B8C] underline">
+Back to main page
+</a>
+
+    <div class="max-w-xl mx-auto mt-10 bg-white rounded-3xl p-8">
+        <h1 class="text-2xl font-semibold mb-6">Staff Profile</h1>
+
+        <div class="space-y-4 mb-8">
+            <div>
+                <p class="text-gray-500">Username</p>
+                <p class="font-semibold">{{ profile_user.username }}</p>
+            </div>
+
+            <div>
+                <p class="text-gray-500">Email</p>
+                <p class="font-semibold">{{ profile_user.email }}</p>
+            </div>
+
+            <div>
+                <p class="text-gray-500">Password</p>
+                <p class="font-semibold">********</p>
+                <p class="text-sm text-gray-500">
+                    Your password is hidden for security.
+                </p>
+            </div>
+        </div>
+
+        <h2 class="text-xl font-semibold mb-4">Change Password</h2>
+
+        <form method="POST" class="space-y-4">
+            {% csrf_token %}
+
+            {% for field in form %}
+                <div>
+                    <label class="font-semibold text-gray-600">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% for error in field.errors %}
+                        <p class="text-red-500 text-sm">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            <button
+                type="submit"
+                class="w-full h-[46px] bg-[#5188FF] text-white rounded-full hover:brightness-90"
+            >
+                Change password
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

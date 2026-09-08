@@ -115,3 +115,41 @@ class TransactionForm(forms.ModelForm):
     class Meta:
         model=Transaction
         fields='__all__'
+
+
+class PasswordChangeForm(forms.Form):
+    current_password = forms.CharField(
+        widget=forms.PasswordInput(),
+        label="Current password"
+    )
+    new_password = forms.CharField(
+        widget=forms.PasswordInput(),
+        label="New password"
+    )
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(),
+        label="Confirm new password"
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        current_password = cleaned_data.get('current_password')
+        new_password = cleaned_data.get('new_password')
+        confirm_password = cleaned_data.get('confirm_password')
+
+        if current_password and new_password:
+            if current_password == new_password:
+                self.add_error(
+                    'new_password',
+                    'New password must be different from your current password.'
+                )
+
+        if new_password and confirm_password:
+            if new_password != confirm_password:
+                self.add_error(
+                    'confirm_password',
+                    'Passwords do not match.'
+                )
+
+        return cleaned_data
