@@ -3,61 +3,110 @@
 {% block title %} - Sales Summary{% endblock %}
 
 {% block script %}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script>
-    $(document).ready(function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        const weeklySales = {{ weekly_sales_json|safe }};
+        const chart = new ApexCharts(document.querySelector('#weekly-sales-chart'), {
+            chart: {
+                type: 'line',
+                height: 280,
+                toolbar: { show: false },
+                fontFamily: 'inherit',
+            },
+            series: [{
+                name: 'Successful sales',
+                type: 'column',
+                data: weeklySales.map(day => day.total),
+            }],
+            xaxis: {
+                categories: weeklySales.map(day => day.label),
+                labels: { style: { colors: '#768C9C' } },
+            },
+            yaxis: {
+                title: { text: 'Sales (RM)' },
+                labels: {
+                    formatter: value => `RM${value.toFixed(0)}`,
+                    style: { colors: '#768C9C' },
+                },
+            },
+            colors: ['#205B8C'],
+            plotOptions: { bar: { borderRadius: 6, columnWidth: '48%' } },
+            dataLabels: { enabled: false },
+            grid: { borderColor: '#E8EEF2', strokeDashArray: 4 },
+            tooltip: { y: { formatter: value => `RM${value.toFixed(2)}` } },
+        });
+        chart.render();
     });
 </script>
 {% endblock %}
 
 {% block content %}
 
-<div class="w-full h-screen bg-white/80 backdrop-blur-xl flex p-[44px] gap-[30px]">
+<div class="w-full min-h-screen bg-white/80 backdrop-blur-xl flex p-5 md:p-[44px] gap-[30px]">
 
-    <div class="grow flex flex-col items-center gap-[44px] ">
+    <div class="grow flex flex-col items-center gap-[30px] md:gap-[44px] min-w-0">
         {% include './components/navbar.html' %}
         
-        <div class="w-full flex gap-[30px]">
-            <div class="w-1/2 h-fit max-h-[70vh] px-[40px] py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col">
-                <h2 class="text-[20px] text-[#4b4b4b] font-semibold">Performance Analytics</h2>
+        <div class="w-full flex flex-col gap-[30px]">
+            <div class="w-full px-5 py-6 md:px-[40px] md:py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col">
+                <div class="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <h2 class="text-[20px] text-[#4b4b4b] font-semibold">Performance Analytics</h2>
+                        <p class="text-sm text-[#768C9C]">Weekly sales overview | {{ performance.week_start }} - {{ performance.week_end }}</p>
+                    </div>
+                    <span class="text-sm font-semibold text-[#205B8C]">Current week</span>
+                </div>
                 
-                <div class="w-full grid grid-cols-3 gap-5">
-                    <div class="w-full flex flex-col gap-2 items-center font-semibold ">
-                        <p class="text-[32px] text-[#4B4B4B]">42</p>
-                        <p class="text-[16px] text-[#768C9C]">sold</p>
+                <div class="w-full grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="w-full flex flex-col gap-1 items-center font-semibold bg-[#F7FAFC] rounded-2xl py-4">
+                        <p class="text-[26px] text-[#4B4B4B]">RM{{ performance.week_sales|floatformat:2 }}</p>
+                        <p class="text-[13px] text-[#768C9C]">weekly sales</p>
                     </div>
-
-                    <div class="w-full flex flex-col gap-2 items-center font-semibold ">
-                        <p class="text-[32px] text-[#4B4B4B]">1</p>
-                        <p class="text-[16px] text-[#768C9C]">fail</p>
+                    <div class="w-full flex flex-col gap-1 items-center font-semibold bg-[#F7FAFC] rounded-2xl py-4">
+                        <p class="text-[26px] text-[#4B4B4B]">{{ performance.week_orders }}</p>
+                        <p class="text-[13px] text-[#768C9C]">successful orders</p>
                     </div>
-
-                    <div class="w-full flex flex-col gap-2 items-center font-semibold ">
-                        <p class="text-[32px] text-[#4B4B4B]">56</p>
-                        <p class="text-[16px] text-[#768C9C]">total products</p>
+                    <div class="w-full flex flex-col gap-1 items-center font-semibold bg-[#FFF7F7] rounded-2xl py-4">
+                        <p class="text-[26px] text-[#D95D5D]">{{ performance.week_failed_orders }}</p>
+                        <p class="text-[13px] text-[#768C9C]">failed orders</p>
                     </div>
-
-                    <div class="w-full flex flex-col gap-2 items-center font-semibold ">
-                        <p class="text-[32px] text-[#4B4B4B]"><span class="text-[16px]">RM</span>250</p>
-                        <p class="text-[16px] text-[#768C9C]">today's sales</p>
+                    <div class="w-full flex flex-col gap-1 items-center font-semibold bg-[#F7FAFC] rounded-2xl py-4">
+                        <p class="text-[26px] text-[#4B4B4B]">{{ performance.success_rate }}%</p>
+                        <p class="text-[13px] text-[#768C9C]">success rate</p>
                     </div>
-
-                    <div class="w-full flex flex-col gap-2 items-center font-semibold ">
-                        <p class="text-[32px] text-[#4B4B4B]"><span class="text-[16px]">RM</span>250</p>
-                        <p class="text-[16px] text-[#768C9C]">last month</p>
-                    </div>
-
-                    <div class="w-full flex flex-col gap-2 items-center font-semibold ">
-                        <p class="text-[32px] text-[#4B4B4B]"><span class="text-[16px]">RM</span>250</p>
-                        <p class="text-[16px] text-[#768C9C]">last year</p>
+                    <div class="w-full flex flex-col gap-1 items-center font-semibold bg-[#F7FAFC] rounded-2xl py-4">
+                        <p class="text-[26px] text-[#4B4B4B]">RM{{ performance.average_order|floatformat:2 }}</p>
+                        <p class="text-[13px] text-[#768C9C]">average order</p>
                     </div>
                 </div>
 
+                <div id="weekly-sales-chart" class="w-full"></div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-[#E8EEF2] pt-5">
+                    <div>
+                        <p class="text-xs text-[#768C9C]">Today's sales</p>
+                        <p class="text-lg font-semibold text-[#4B4B4B]">RM{{ performance.today_sales|floatformat:2 }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#768C9C]">This month</p>
+                        <p class="text-lg font-semibold text-[#4B4B4B]">RM{{ performance.month_sales|floatformat:2 }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#768C9C]">Best day</p>
+                        <p class="text-lg font-semibold text-[#4B4B4B]">{{ performance.best_day.label }} | RM{{ performance.best_day.total|floatformat:2 }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-[#768C9C]">Products in catalogue</p>
+                        <p class="text-lg font-semibold text-[#4B4B4B]">{{ performance.total_products }}</p>
+                    </div>
+                </div>
             </div>
     
-            <div class="w-1/2 h-fit max-h-[70vh] px-[40px] py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col">
+            <div class="w-full px-5 py-6 md:px-[40px] md:py-[45px] bg-white rounded-[30px] gap-[30px] flex flex-col">
                 <h2 class="text-[20px] text-[#4b4b4b] font-semibold">Transaction Log</h2>
     
-                <div class="grow w-full flex flex-col overflow-y-scroll gap-7">
+                <div class="w-full flex flex-col gap-7">
                     {% for trx in transactions %}
                         <div class="w-full flex flex-col gap-3 pt-3 border-t border-gray-300">
                             <div class="w-full text-gray-500 font-semibold gap-2 flex justify-between items-center text-sm">
