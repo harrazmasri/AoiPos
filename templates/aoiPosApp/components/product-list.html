@@ -29,7 +29,7 @@
                     id="image_preview" 
                     src="{% if product and product.image_path %}{{ product.image_path.url }}{% endif %}" 
                     alt="Preview" 
-                    class="w-full h-full object-cover rounded-[20px] {% if not product or not product.image_path %}hidden{% endif %}" 
+                    class="w-full aspect-square h-auto object-cover rounded-[20px] {% if not product or not product.image_path %}hidden{% endif %}" 
                 />
             {% else %}
                 <div class="bg-gray-300 rounded-[20px] w-full aspect-square"></div>
