@@ -55,6 +55,7 @@ class RegisterForm (forms.ModelForm):
 
         return user
 
+
 class LoginForm(forms.Form):
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={'placeholder': 'example@email.com'})
