@@ -32,6 +32,7 @@ urlpatterns = [
     path('catalogue/create/', aoiView.view, name="product-create"),
     path('catalogue/delete/', aoiView.deleteProduct, name='product-delete'),
     path('logout/', aoiView.logout, name="logout"),    
+    path('profile/', aoiView.profile, name='profile'),
 
     # api routes
     path('api/get-auth-user', aoiView.getAuthUser),

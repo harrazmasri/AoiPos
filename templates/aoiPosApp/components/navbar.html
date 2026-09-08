@@ -14,7 +14,7 @@
     </div>
 
     <div class="w-fit flex gap-5 items-center">
-        <p class="capitalize font-semibold">{{ request.session.user_username }}</p>
+        <a href="{% url 'profile' %}"class="capitalize font-semibold hover:text-[#205B8C]"> {{ request.session.user_username }}</a>
         <a href="{% url 'logout' %}" class="text-[1rem] font-semibold text-[#4b4b4b] hover:text-[#205B8C] flex gap-2 items-center">
             <i class="w-[18px]" data-feather="log-out"></i>
             log out

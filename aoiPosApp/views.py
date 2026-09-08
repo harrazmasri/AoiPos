@@ -5,9 +5,10 @@ from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from aoiPOS import settings
-from aoiPosApp.forms import LoginForm, RegisterForm, ProductForm, TransactionForm
+from aoiPosApp.forms import LoginForm, RegisterForm, ProductForm, TransactionForm, PasswordChangeForm
 from aoiPosApp.models import Product, Transaction, TransactionItem, User
 from django.core.files.storage import default_storage
+from django.contrib.auth.hashers import check_password, make_password
 
 # Create your views here.
 def login(request):
@@ -262,3 +263,36 @@ def storeTransaction(request):
                 }, 
                 status=500
             )
+
+
+def profile(request):
+    user_id = request.session.get('user_id')
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.POST)
+
+        if form.is_valid():
+            if not check_password(
+                form.cleaned_data['current_password'],
+                user.password
+            ):
+                form.add_error(
+                    'current_password',
+                    'Current password is incorrect.'
+                )
+            else:
+                user.password = make_password(
+                    form.cleaned_data['new_password']
+                )
+                user.save(update_fields=['password'])
+
+                request.session.flush()
+                return redirect('login')
+    else:
+        form = PasswordChangeForm()
+
+    return render(request, 'aoiPosApp/profile.html', {
+        'profile_user': user,
+        'form': form,
+    })
