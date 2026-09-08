@@ -17,3 +17,21 @@ class SessionAuthMiddleware:
             return redirect('pos')
 
         return self.get_response(request)
+
+
+class RoleMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    
+    def __call__(self, request):
+
+        urls = ['/catalogue', '/summary/']
+
+        role = request.session.get('user_role')
+        
+        if role != 'admin':
+            if any(request.path.startswith(prefix) for prefix in urls):
+                return redirect('pos')
+
+        return self.get_response(request)

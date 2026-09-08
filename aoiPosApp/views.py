@@ -22,6 +22,7 @@ def login(request):
             
             request.session['user_id'] = user.id
             request.session['user_username'] = user.username
+            request.session['user_role'] = user.role
             
             return redirect('/pos')
     else:

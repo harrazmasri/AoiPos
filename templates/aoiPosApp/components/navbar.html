@@ -6,9 +6,11 @@
     </div>
 
     <div class="w-fit flex gap-5 items-center">
-        <a href="{% url 'pos' %}" class="text-[1rem] font-semibold text-[#4b4b4b] hover:text-[#205B8C]">cashier</a>
-        <a href="{% url 'catalogue' %}" class="text-[1rem] font-semibold text-[#4b4b4b] hover:text-[#205B8C]">catalogue</a>
-        <a href="{% url 'summary' %}" class="text-[1rem] font-semibold text-[#4b4b4b] hover:text-[#205B8C]">summary</a>
+        {% if request.session.user_role == 'admin' %}
+            <a href="{% url 'pos' %}" class="text-[1rem] font-semibold text-[#4b4b4b] hover:text-[#205B8C]">cashier</a>
+            <a href="{% url 'catalogue' %}" class="text-[1rem] font-semibold text-[#4b4b4b] hover:text-[#205B8C]">catalogue</a>
+            <a href="{% url 'summary' %}" class="text-[1rem] font-semibold text-[#4b4b4b] hover:text-[#205B8C]">summary</a>
+        {% endif %}
     </div>
 
     <div class="w-fit flex gap-5 items-center">

@@ -1,5 +1,6 @@
 import re
 from django import forms
+from django.contrib.auth.hashers import check_password, make_password
 from aoiPosApp.models import Product, Transaction, User
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
@@ -44,6 +45,15 @@ class RegisterForm (forms.ModelForm):
 
         return cleaned_data
 
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.password = make_password(self.cleaned_data['password'])
+
+        if commit:
+            user.save()
+        return user
+    
+
 class LoginForm(forms.Form):
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={'placeholder': 'example@email.com'})
@@ -61,7 +71,7 @@ class LoginForm(forms.Form):
             try:
                 user = User.objects.get(email=email)
 
-                if user.password != password:
+                if not check_password(password, user.password):
                     self.add_error(None, "Invalid email or password")
                 else:
                     self.user_cache = user

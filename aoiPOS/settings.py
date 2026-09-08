@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'aoiPosApp.middleware.SessionAuthMiddleware',
+    'aoiPosApp.middleware.RoleMiddleware',
 ]
 
 ROOT_URLCONF = 'aoiPOS.urls'

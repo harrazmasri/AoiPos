@@ -1,11 +1,25 @@
 from decimal import Decimal
 import uuid
-
 from django.db import models
+from django.db.models.signals import post_migrate
+from django.dispatch import receiver
+from django.contrib.auth.hashers import make_password
 from django.utils.crypto import get_random_string
 
 def generate_transaction_id():
     return f"Transaction-{uuid.uuid4().hex[:8].upper()}"
+
+@receiver(post_migrate)
+def seed_admin_user(sender, **kwargs):
+    if sender.name == 'aoiPosApp':
+        User.objects.update_or_create(
+            username='admin',
+            defaults={
+                'email': 'admin@example.com',
+                'password': make_password('asd123123'),
+                'role': 'admin',
+            }
+        )
 
 # Create your models here.
 class User (models.Model):
@@ -13,6 +27,10 @@ class User (models.Model):
     username = models.CharField(max_length=100)
     email = models.EmailField(max_length=255)
     password = models.CharField(max_length=255)
+    role = models.CharField(
+        max_length=70,
+        default='staff',  # admin | staff
+    )
 
 
 class Product (models.Model):
