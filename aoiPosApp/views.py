@@ -1,9 +1,12 @@
 from decimal import Decimal
+from datetime import timedelta
 import json
 
 from django.db import transaction
+from django.db.models import Count, Q, Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from aoiPOS import settings
 from aoiPosApp.forms import LoginForm, RegisterForm, ProductForm, TransactionForm, PasswordChangeForm
 from aoiPosApp.models import Product, Transaction, TransactionItem, User
@@ -107,14 +110,74 @@ def view(request, id=None):
     })
 
 def summary (request):
+    if request.session.get('user_role') != 'admin':
+        return redirect('pos')
 
     transactions = Transaction.objects.all().select_related('user').prefetch_related('items__product').order_by('-created_at')
 
+    today = timezone.localdate()
+    week_start = today - timedelta(days=(today.weekday() + 1) % 7)
+    week_end = week_start + timedelta(days=6)
+    successful_transactions = Transaction.objects.filter(status=True)
+    failed_transactions = Transaction.objects.filter(status=False)
+
+    def sales_between(start, end):
+        return successful_transactions.filter(
+            created_at__date__gte=start,
+            created_at__date__lte=end,
+        ).aggregate(total=Sum('effective_amount'))['total'] or Decimal('0.00')
+
+    weekly_sales = []
+    for day_offset in range(7):
+        day = week_start + timedelta(days=day_offset)
+        weekly_sales.append({
+            'label': day.strftime('%a'),
+            'date': day.strftime('%d %b'),
+            'total': float(sales_between(day, day)),
+            'failed_orders': failed_transactions.filter(
+                created_at__date=day,
+            ).count(),
+        })
+
+    week_transactions = successful_transactions.filter(
+        created_at__date__gte=week_start,
+        created_at__date__lte=week_end,
+    )
+    week_order_count = week_transactions.count()
+    week_failed_order_count = failed_transactions.filter(
+        created_at__date__gte=week_start,
+        created_at__date__lte=week_end,
+    ).count()
+    week_sales = sales_between(week_start, week_end)
+    month_start = today.replace(day=1)
+    month_sales = sales_between(month_start, today)
+    all_transactions = Transaction.objects.aggregate(
+        total=Count('id'),
+        successful=Count('id', filter=Q(status=True)),
+    )
+    transaction_count = all_transactions['total'] or 0
+    successful_count = all_transactions['successful'] or 0
+    success_rate = round(successful_count / transaction_count * 100) if transaction_count else 0
+    best_day = max(weekly_sales, key=lambda day: day['total'])
+
     pageData = {
         'performance': {
-
+            'today_sales': sales_between(today, today),
+            'week_sales': week_sales,
+            'month_sales': month_sales,
+            'week_orders': week_order_count,
+            'week_failed_orders': week_failed_order_count,
+            'total_orders': transaction_count,
+            'successful_orders': successful_count,
+            'failed_orders': transaction_count - successful_count,
+            'success_rate': success_rate,
+            'average_order': (week_sales / week_order_count) if week_order_count else Decimal('0.00'),
+            'total_products': Product.objects.count(),
+            'best_day': best_day,
+            'week_start': week_start.strftime('%d %b'),
+            'week_end': week_end.strftime('%d %b'),
         },
-
+        'weekly_sales_json': json.dumps(weekly_sales),
         'transactions': transactions,
     }
 
